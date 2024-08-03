@@ -22,3 +22,6 @@ dbConnection();
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
+
+// hosted server url
+// https://node-server-k3tz.onrender.com/products
