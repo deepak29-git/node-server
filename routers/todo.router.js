@@ -2,19 +2,20 @@ const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const data = require("../database/data");
 const router = express.Router();
-const productModel = require("../models/product.model");
+const todoModel = require("../models/todo.model");
 
 router
   .route("/")
   .get((req, res) => {
-    productModel
+    const { userName } = req.userData;
+    todoModel
       .find({})
-      .then((products) => res.json(products))
+      .then((todos) => res.json({ todos }))
       .catch((err) => res.json({ message: err.message }));
   })
   .post((req, res) => {
-    let products = req.body;
-    const watch = new productModel(products);
+    let todos = req.body;
+    const watch = new todoModel(todos);
     watch
       .save()
       .then((savedWatch) => res.status(201).json(savedWatch))
@@ -25,41 +26,41 @@ router
   .route("/:id")
   .get(async (req, res) => {
     const { id } = req.params;
-    const productById = await productModel.findById(id);
-    if (productById) {
-      res.json(productById);
+    const todoById = await todoModel.findById(id);
+    if (todoById) {
+      res.json(todoById);
     } else {
       res.status(404).json({ message: "Product not found" });
     }
   })
   .post(async (req, res) => {
     const { id } = req.params;
-    const updatedProduct = req.body;
-    let product = await productModel.findById(id);
-    if (product) {
-      Object.keys(updatedProduct).forEach((key) => {
-        product[key] = updatedProduct[key];
+    const updatedTodo = req.body;
+    let todo = await todoModel.findById(id);
+    if (todo) {
+      Object.keys(updatedTodo).forEach((key) => {
+        todo[key] = updatedTodo[key];
       });
       try {
-        const watch = new productModel(product);
+        const watch = new todoModel(todo);
         const savedWatch = await watch.save();
         res.status(200).json({
-          Message: "Product updated",
-          product: savedWatch,
+          Message: "todo updated",
+          todo: savedWatch,
         });
       } catch (err) {
         res.json({ message: err.message });
       }
     } else {
-      res.status(404).json({ message: "product not found" });
+      res.status(404).json({ message: "todo not found" });
     }
   })
   .delete(async (req, res) => {
     const { id } = req.params;
     try {
-      const findProduct = await productModel.findById(id);
-      const deleteProduct = await productModel.deleteOne(findProduct);
-      res.status(200).json({ message: "Product deleted", deleteProduct });
+      const findTodo = await todoModel.findById(id);
+      const deleteTodo = await todoModel.deleteOne(findTodo);
+      res.status(200).json({ message: "Product deleted", deleteTodo });
     } catch (err) {
       res.status(404).json({ message: err.message });
     }

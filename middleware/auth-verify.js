@@ -14,7 +14,7 @@ const authVerify = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, secret);
-    req.user = { userId: decoded.userId };
+    req.userData = decoded;
     next();
   } catch (error) {
     res.status(401).json({ message: "Unauthorized token", error: error.message });

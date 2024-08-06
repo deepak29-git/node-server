@@ -1,28 +1,24 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const { v4: uuid } = require("uuid");
+const authModel = require("../models/auth.model");
 require("dotenv").config();
 const secret = process.env.JWT_SECRET;
-const userDb = [
-  {
-    email: "test@gmail.com",
-    password: "test@123",
-  },
-];
-router.route("/").post((req, res) => {
+
+router.route("/").post(async (req, res) => {
   const userData = req.body;
-  const user = userDb.find(
-    (item) =>
-      item.email === userData.email && item.password === userData.password
-  );
-  if (user) {
-    const token = jwt.sign({ userName: "deepak" }, secret, {
-      expiresIn: "1hr",
-    });
-    res.json({ token });
-  } else {
-    res.status(401).json({ message: "unauthorized" });
+  try {
+    const isAuth = await authModel.find(userData);
+    if (isAuth.length) {
+      const token = jwt.sign({ userName: "deepak" }, secret, {
+        expiresIn: "1hr",
+      });
+      res.json({ token });
+    } else {
+      res.status(404).json({ message: "No account found in DB" });
+    }
+  } catch (err) {
+    res.status(401).json({ message: err.message });
   }
 });
 
